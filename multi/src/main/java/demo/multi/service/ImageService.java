@@ -1,6 +1,7 @@
-package demo.multi.service; 
+package demo.multi.service;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.dao.EmptyResultDataAccessException;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -37,6 +38,26 @@ public class ImageService {
                 "INSERT INTO imagens_path (nome, caminho) VALUES (?, ?)",
                 file.getName(),
                 file.getAbsolutePath()
+        );
+    }
+    public byte[] buscarBlobPorNome(String nome) {
+
+        try {
+            return jdbc.queryForObject(
+                    "SELECT imagem FROM imagens_blob WHERE nome = ? LIMIT 1",
+                    byte[].class,
+                    nome
+            );
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
+    }
+    public String buscarPathPorNome(String nome) {
+
+        return jdbc.queryForObject(
+                "SELECT caminho FROM imagens_path WHERE nome = ? LIMIT 1",
+                String.class,
+                nome
         );
     }
 }

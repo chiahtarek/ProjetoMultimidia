@@ -50,7 +50,7 @@ public class MultiApplication implements CommandLineRunner {
 
         long fimPath = System.currentTimeMillis();
 
-        System.out.println("\n===== RESULTADO =====");
+        System.out.println("\n===== RESULTADO DE INSERÇÃO DE 10 IMAGENS =====");
         System.out.println("BLOB: " + (fimBlob - iniBlob) + " ms");
         System.out.println("PATH: " + (fimPath - iniPath) + " ms");
 
@@ -58,6 +58,50 @@ public class MultiApplication implements CommandLineRunner {
             System.out.println("PATH foi mais rápido");
         } else {
             System.out.println("BLOB foi mais rápido");
+        }
+        System.out.println("\n===== TESTE DE BUSCA =====");
+
+        String nomeTeste = imagens[0].getName();
+
+// ================= PATH =================
+        long iniPathBusca = System.currentTimeMillis();
+
+        String caminho = service.buscarPathPorNome(nomeTeste);
+
+        long fimPathBusca = System.currentTimeMillis();
+
+        long tempoPathBusca = fimPathBusca - iniPathBusca;
+
+        System.out.println("PATH encontrado: " + caminho);
+        System.out.println("Tempo busca PATH: " + tempoPathBusca + " ms");
+
+// ================= BLOB =================
+        long iniBlobBusca = System.currentTimeMillis();
+
+        byte[] imagemBlob = service.buscarBlobPorNome(nomeTeste);
+
+        long fimBlobBusca = System.currentTimeMillis();
+
+        long tempoBlobBusca = fimBlobBusca - iniBlobBusca;
+
+        if (imagemBlob != null) {
+            System.out.println("BLOB encontrado: " + imagemBlob.length + " bytes");
+        } else {
+            System.out.println("BLOB não encontrado");
+        }
+
+        System.out.println("Tempo busca BLOB: " + tempoBlobBusca + " ms");
+
+// ================= COMPARAÇÃO =================
+
+        System.out.println("\n===== RESULTADO BUSCA =====");
+
+        if (tempoPathBusca < tempoBlobBusca) {
+            System.out.println("PATH foi mais rápido na busca.");
+        } else if (tempoBlobBusca < tempoPathBusca) {
+            System.out.println("BLOB foi mais rápido na busca.");
+        } else {
+            System.out.println("Empate na busca.");
         }
     }
 }
