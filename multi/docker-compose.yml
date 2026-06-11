@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql_multimidia
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: teste_multimidia
+      MYSQL_USER: aluno
+      MYSQL_PASSWORD: aluno
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./mysql:/docker-entrypoint-initdb.d
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin_multimidia
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: mysql
+      MYSQL_ROOT_PASSWORD: root
+    depends_on:
+      - mysql
+
+  java-app:
+    build:
+      context: .
+    container_name: java-app
+    depends_on:
+      - mysql
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/teste_multimidia
+      SPRING_DATASOURCE_USERNAME: aluno
+      SPRING_DATASOURCE_PASSWORD: aluno
+    volumes:
+      - ./imagens:/app/imagens
+
+volumes:
+  mysql_data:
