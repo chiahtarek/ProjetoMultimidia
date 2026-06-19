@@ -29,12 +29,29 @@ services:
     depends_on:
       - mysql
 
+  ftp:
+    image: fauria/vsftpd
+    container_name: ftp_server
+    restart: always
+    ports:
+      - "21:21"
+      - "21100-21110:21100-21110"
+    environment:
+      FTP_USER: ftpuser
+      FTP_PASS: ftppass
+      PASV_ADDRESS: 127.0.0.1
+      PASV_MIN_PORT: 21100
+      PASV_MAX_PORT: 21110
+    volumes:
+      - ./ftp-data:/home/vsftpd
+
   java-app:
     build:
       context: .
     container_name: java-app
     depends_on:
       - mysql
+      - ftp
     ports:
       - "8081:8081"
     environment:

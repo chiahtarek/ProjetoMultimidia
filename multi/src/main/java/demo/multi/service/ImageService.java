@@ -1,4 +1,5 @@
 package demo.multi.service;
+
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -10,9 +11,11 @@ import java.nio.file.Files;
 public class ImageService {
 
     private final JdbcTemplate jdbc;
+    private final FtpService ftpService;
 
-    public ImageService(JdbcTemplate jdbc) {
+    public ImageService(JdbcTemplate jdbc, FtpService ftpService) {
         this.jdbc = jdbc;
+        this.ftpService = ftpService;
     }
 
     // =======================
@@ -25,39 +28,39 @@ public class ImageService {
         jdbc.update(
                 "INSERT INTO imagens_blob (nome, imagem) VALUES (?, ?)",
                 file.getName(),
-                bytes
-        );
+                bytes);
     }
 
     // =======================
     // INSERT PATH
     // =======================
-    public void inserirPath(File file) {
+    public void inserirPath(File file) throws Exception {
+
+        String caminhoFTP = ftpService.enviarArquivo(file);
 
         jdbc.update(
-                "INSERT INTO imagens_path (nome, caminho) VALUES (?, ?)",
+                "INSERT INTO imagens_path(nome, caminho) VALUES (?, ?)",
                 file.getName(),
-                file.getAbsolutePath()
-        );
+                caminhoFTP);
     }
+
     public byte[] buscarBlobPorNome(String nome) {
 
         try {
             return jdbc.queryForObject(
                     "SELECT imagem FROM imagens_blob WHERE nome = ? LIMIT 1",
                     byte[].class,
-                    nome
-            );
+                    nome);
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
     }
+
     public String buscarPathPorNome(String nome) {
 
         return jdbc.queryForObject(
                 "SELECT caminho FROM imagens_path WHERE nome = ? LIMIT 1",
                 String.class,
-                nome
-        );
+                nome);
     }
 }
